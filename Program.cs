@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -25,6 +26,14 @@ namespace APIGigaChatImage_True
             {
                 Console.WriteLine("Не удалось получить токен");
                 return;
+            }
+            while (true)
+            {
+                Console.Write("Сообщение: ");
+                string Message = Console.ReadLine();
+                string imagePath = await GenerateImage(Token, Message);
+
+                WallpaperSetter.SetWallpaper(imagePath);
             }
         }
 
@@ -168,6 +177,38 @@ namespace APIGigaChatImage_True
                         Console.WriteLine($"Детали: {error}");
                         return null;
                     }
+                }
+            }
+        }
+        public class WallpaperSetter
+        {
+            private const int SPI_SETDESKWALLPAPER = 0x0014;
+            private const int SPIF_UPDATEINIFILE = 0x01;
+            private const int SPIF_SENDWININICHANGE = 0x02;
+
+            [DllImport("user32.dll", CharSet = CharSet.Auto)]
+            private static extern int SystemParametersInfo(
+                int uAction,
+                int uParam,
+                string lpvParam,
+                int fuWinIni
+            );
+
+            public static void SetWallpaper(string imagePath)
+            {
+                try
+                {
+                    SystemParametersInfo(
+                        SPI_SETDESKWALLPAPER,
+                        0,
+                        imagePath,
+                        SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE
+                    );
+                    Console.WriteLine($"Обои установлены: {imagePath}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка: {ex.Message}");
                 }
             }
         }
