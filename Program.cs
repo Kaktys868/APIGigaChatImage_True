@@ -111,7 +111,6 @@ namespace APIGigaChatImage_True
                         string responseJson = await response.Content.ReadAsStringAsync();
                         Console.WriteLine($"✓ Получен ответ от API");
 
-                        // Парсим HTML ответ для получения ссылки на изображение
                         var data = JObject.Parse(responseJson);
                         string htmlContent = data["choices"]?[0]?["message"]?["content"]?.ToString();
 
@@ -123,7 +122,6 @@ namespace APIGigaChatImage_True
 
                         Console.WriteLine($"HTML ответ (первые 200 символов): {htmlContent.Substring(0, Math.Min(200, htmlContent.Length))}");
 
-                        // Извлекаем URL изображения из HTML
                         var match = Regex.Match(htmlContent, @"src=""([^""]+)""");
 
                         if (!match.Success)
@@ -140,11 +138,9 @@ namespace APIGigaChatImage_True
                         string imageId = match.Groups[1].Value;
                         Console.WriteLine($"✓ ID изображения получен: {imageId}");
 
-                        // Формируем URL для скачивания
                         string fileUrl = $"https://gigachat.devices.sberbank.ru/api/v1/files/{imageId}/content";
                         Console.WriteLine($"URL для скачивания: {fileUrl}");
 
-                        // Скачиваем изображение
                         Console.WriteLine($"Скачивание изображения...");
                         var fileResponse = await client.GetAsync(fileUrl);
 
@@ -153,7 +149,6 @@ namespace APIGigaChatImage_True
                             byte[] imageData = await fileResponse.Content.ReadAsByteArrayAsync();
                             Console.WriteLine($"✓ Изображение скачано: {imageData.Length} байт");
 
-                            // Сохраняем в текущую директорию
                             string fileName = $"generated_{DateTime.Now:yyyyMMddHHmmss}.jpg";
                             string filePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
 
